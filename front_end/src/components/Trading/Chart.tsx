@@ -21,6 +21,7 @@ import {
   tradingDataDef,
 } from '../DataManagement'
 import { FilterState } from '../StateManagement'
+import { NoData, NoDataAnimation } from '../Utils'
 
 const CHART_HEIGHT = 600
 
@@ -54,22 +55,22 @@ function LinearGauge(H: any) {
       if (!markLine) {
         var path = inverted
           ? [
-              'M',
-              0,
-              0,
-              'L',
-              -5,
-              -5,
-              'L',
-              5,
-              -5,
-              'L',
-              0,
-              0,
-              'L',
-              0,
-              0 + xAxis.len,
-            ]
+            'M',
+            0,
+            0,
+            'L',
+            -5,
+            -5,
+            'L',
+            5,
+            -5,
+            'L',
+            0,
+            0,
+            'L',
+            0,
+            0 + xAxis.len,
+          ]
           : ['M', 0, 0, 'L', -5, -5, 'L', -5, 5, 'L', 0, 0, 'L', xAxis.len, 0]
         markLine = this.markLine = chart.renderer
           .path(path)
@@ -111,6 +112,8 @@ interface OhlcChartProps {
   cryptoMetaData: any
   decimalPlaces: number
 }
+
+
 
 interface GreedAndFearChartProps {
   data: any
@@ -840,11 +843,13 @@ export function TradingChart(data: { tradingData: tradingDataDef }) {
   ])
 
   useEffect(() => {
-    const volumeArrayData = data.tradingData.ohlcvData.map((item) => [
-      item[0],
-      item[5],
-    ])
-    setVolumeArray(volumeArrayData)
+    if (data.tradingData.ohlcvData !== false) {
+      const volumeArrayData = (data.tradingData.ohlcvData as OhlcData).map((item) => [
+        item[0],
+        item[5],
+      ])
+      setVolumeArray(volumeArrayData)
+    }
   }, [data.tradingData.ohlcvData])
 
   let decimalPlaces = 2
@@ -852,32 +857,43 @@ export function TradingChart(data: { tradingData: tradingDataDef }) {
     decimalPlaces = data.tradingData.markets[pair]['precision']['price']
       .toString()
       .split('.')[1].length
-  } catch {}
+  } catch { }
 
   return (
     <div style={{ height: CHART_HEIGHT }}>
       <Row style={{ height: CHART_HEIGHT }}>
         <Col sm={10} style={{ zIndex: 1 }}>
-          {data.tradingData.ohlcvData.length === 0 ? (
-            <CircularProgress
-              style={{ position: 'absolute', top: '30%', left: '40%' }}
-            />
-          ) : (
-            <OhlcChart
-              data={data.tradingData.ohlcvData}
-              exchange={exchange as string}
-              pair={pair as string}
-              selectedArticle={selectedArticle}
-              selectedOrder={selectedOrder}
-              pairScoreDetails={pairScoreDetails}
-              volumeArray={volumeArray}
-              cryptoInfo={cryptoInfo}
-              cryptoMetaData={cryptoMetaData}
-              decimalPlaces={decimalPlaces}
-            />
-          )}
+          {
+            data.tradingData.ohlcvData === false ?
+              <NoDataAnimation data={data.tradingData.noDataAnimation} chartHeight={CHART_HEIGHT} />
+              :
+              <>
+                {(data.tradingData.ohlcvData as OhlcData).length === 0 && (
+                  <CircularProgress
+                    style={{ position: 'absolute', top: '30%', left: '40%' }}
+                  />
+                )}
+                {(data.tradingData.ohlcvData as OhlcData).length !== 0 && (
+                  <OhlcChart
+                    data={data.tradingData.ohlcvData as OhlcData}
+                    exchange={exchange as string}
+                    pair={pair as string}
+                    selectedArticle={selectedArticle}
+                    selectedOrder={selectedOrder}
+                    pairScoreDetails={pairScoreDetails}
+                    volumeArray={volumeArray}
+                    cryptoInfo={cryptoInfo}
+                    cryptoMetaData={cryptoMetaData}
+                    decimalPlaces={decimalPlaces}
+                  />
+                )}
+              </>
+          }
         </Col>
         <Col sm={2} style={{ zIndex: 2 }}>
+          {data.tradingData.orderBookData === false &&
+            <NoData marginTop={0} dataType='Order Book' />
+          }
           {Object.keys(data.tradingData.orderBookData).includes('bid') &&
             data.tradingData.orderBookData.bid.length !== 0 && (
               <OrderBookChart

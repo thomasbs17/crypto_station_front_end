@@ -15,6 +15,7 @@ import { Col, Container, Row } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { Order, tradingDataDef } from '../DataManagement'
 import { FilterState, filterSlice } from '../StateManagement'
+import { NoData } from '../Utils'
 
 interface TableProps {
   openOnly: boolean
@@ -258,55 +259,58 @@ function Orders(data: { tradingData: tradingDataDef }) {
   const [paper, setPaper] = useState(true)
   const [live, setLive] = useState(false)
   return (
-    <Container>
-      <div style={{ zIndex: 1000, position: 'relative' }}>
-        <Row>
-          <Col xs={3}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={openOnly}
-                  onChange={() => setOpenOnly(!openOnly)}
-                />
-              }
-              label="Open orders only"
-            />
-          </Col>
-          <Col xs={3}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={selectedPair}
-                  onChange={() => setSelectedPair(!selectedPair)}
-                />
-              }
-              label="Selected pair only"
-            />
-          </Col>
-          <Col xs={5}>
-            <FormControlLabel
-              control={
-                <Checkbox checked={paper} onChange={() => setPaper(!paper)} />
-              }
-              label="Paper Trading"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox checked={live} onChange={() => setLive(!live)} />
-              }
-              label="Live Trading"
-            />
-          </Col>
-        </Row>
-      </div>
-      <OrderTable
-        openOnly={openOnly}
-        selectedPair={selectedPair}
-        paper={paper}
-        live={live}
-        orders={data.tradingData.orders}
-      />
-    </Container>
+    data.tradingData.orders === false ?
+      <NoData marginTop={10} dataType='orders' />
+      :
+      <Container>
+        <div style={{ zIndex: 1000, position: 'relative' }}>
+          <Row>
+            <Col xs={3}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={openOnly}
+                    onChange={() => setOpenOnly(!openOnly)}
+                  />
+                }
+                label="Open orders only"
+              />
+            </Col>
+            <Col xs={3}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={selectedPair}
+                    onChange={() => setSelectedPair(!selectedPair)}
+                  />
+                }
+                label="Selected pair only"
+              />
+            </Col>
+            <Col xs={5}>
+              <FormControlLabel
+                control={
+                  <Checkbox checked={paper} onChange={() => setPaper(!paper)} />
+                }
+                label="Paper Trading"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox checked={live} onChange={() => setLive(!live)} />
+                }
+                label="Live Trading"
+              />
+            </Col>
+          </Row>
+        </div>
+        <OrderTable
+          openOnly={openOnly}
+          selectedPair={selectedPair}
+          paper={paper}
+          live={live}
+          orders={data.tradingData.orders as Order[]}
+        />
+      </Container>
   )
 }
 

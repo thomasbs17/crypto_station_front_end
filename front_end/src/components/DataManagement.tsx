@@ -7,13 +7,13 @@ export type tradingDataDef = {
   cryptoMetaData: any
   exchanges: any
   markets: any
-  news: NewsArticle[]
-  orders: Order[]
-  screeningData: any
+  news: NewsArticle[] | boolean
+  orders: Order[] | boolean
+  screeningData: any | boolean
   noDataAnimation: any
-  ohlcvData: OhlcData
-  orderBookData: any
-  greedAndFearData: any
+  ohlcvData: OhlcData | boolean
+  orderBookData: any | boolean
+  greedAndFearData: any | boolean
 }
 
 export type OhlcData = number[][]
@@ -130,7 +130,7 @@ function LoadMarkets() {
 
 function LoadOrders() {
   const dispatch = useDispatch()
-  const [orders, setOrders] = useState<Order[]>([])
+  const [orders, setOrders] = useState<Order[] | boolean>([])
   const filterState = useSelector(
     (state: { filters: FilterState }) => state.filters,
   )
@@ -148,6 +148,7 @@ function LoadOrders() {
         dispatch(filterSlice.actions.setOrdersNeedReload(false))
       } catch (error) {
         console.error('Error fetching orders data:', error)
+        setOrders(false)
       }
     }
     fetchOrders()
@@ -159,7 +160,7 @@ function LoadNews(coinMarketCapMapping: any) {
   const pair = useSelector(
     (state: { filters: FilterState }) => state.filters.pair,
   )
-  const [news, setNewsData] = useState<Array<NewsArticle>>([])
+  const [news, setNewsData] = useState<Array<NewsArticle> | boolean>([])
   useEffect(() => {
     async function getNewsData() {
       setNewsData([])
@@ -177,7 +178,7 @@ function LoadNews(coinMarketCapMapping: any) {
           setNewsData(data)
         }
       } catch (error) {
-        setNewsData([])
+        setNewsData(false)
         console.error('Error fetching news:', error)
       }
     }
@@ -198,6 +199,7 @@ function LoadScreeningData() {
     const socket = new WebSocket(wsUrl)
     socket.onerror = () => {
       console.error('Error with screening service')
+      setScreeningData(false);
     }
     socket.onopen = () => {
       console.log('Connected to screening service')
@@ -245,7 +247,7 @@ function LoadOhlcvData() {
     () => [filterState.exchange, filterState.pair, filterState.ohlcPeriod],
     [filterState.exchange, filterState.pair, filterState.ohlcPeriod],
   )
-  const [ohlcData, setOHLCData] = useState<OhlcData>([])
+  const [ohlcData, setOHLCData] = useState<OhlcData | boolean>([])
   useEffect(() => {
     async function fetchOHLCData() {
       try {
@@ -254,7 +256,7 @@ function LoadOhlcvData() {
         )
         setOHLCData(await ohlc_response.json())
       } catch (error) {
-        setOHLCData([])
+        setOHLCData(false)
         console.error('Error fetching OHLC data:', error)
       }
     }
@@ -307,9 +309,10 @@ function LoadOrderBook() {
     () => [filterState.exchange, filterState.pair],
     [filterState.exchange, filterState.pair],
   )
-  const [orderBookData, setOrderBookData] = useState<OrderBookData>({})
+  const [orderBookData, setOrderBookData] = useState<OrderBookData | boolean>({})
 
   useEffect(() => {
+
     async function fetchOrderBookData() {
       try {
         const orderBookResponse = await fetch(
@@ -318,7 +321,7 @@ function LoadOrderBook() {
         const responseData = await orderBookResponse.json()
         setOrderBookData(formatOrderBook(responseData, false))
       } catch (error) {
-        setOrderBookData({})
+        setOrderBookData(false)
         console.error('Error fetching Order Book data:', error)
       }
     }
@@ -330,14 +333,13 @@ function LoadOrderBook() {
       console.warn(
         `Could not implement websocket connection for ${pair} on ${exchange}. Will default back to periodic API refresh.`,
       )
-      fetchOrderBookData()
     }
     socket.onopen = () => {
       clearInterval(orderBookInterval)
     }
     socket.onmessage = (event) => {
       const newData = JSON.parse(event.data)
-      if (Object.keys(orderBookData).length === 0) {
+      if (Object.keys(newData).length === 0) {
         setOrderBookData(formatOrderBook(newData['book'], true))
       }
     }
@@ -363,6 +365,7 @@ function LoadGreedAndFear() {
         const response = await fetch(url)
         setData(await response.json())
       } catch (error) {
+        setData(false);
         console.error('Error fetching greed and fear index data:', error)
       }
     }
