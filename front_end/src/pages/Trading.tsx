@@ -19,6 +19,7 @@ import Orders from '../components/Trading/Orders'
 import Screening from '../components/Trading/Screening'
 import Trades from '../components/Trading/TradeHistory'
 import EconomicCalendar from '../components/Trading/EconomicCalendar'
+import EventLog from '../components/Trading/EventLog'
 
 const ResponsiveGridLayout = WidthProvider(Responsive)
 
@@ -87,7 +88,14 @@ function Trading() {
     <div style={{ overflow: 'hidden' }}>
       <TopBar tradingData={tradingData} />
       <Container fluid>
-        <TradingChart tradingData={tradingData} />
+        <Row>
+          <Col style={{ maxWidth: '90%' }}>
+            <TradingChart tradingData={tradingData} />
+          </Col>
+          <Col style={{ maxWidth: '20%' }}>
+            <EventLog />
+          </Col>
+        </Row>
         <Row
           className="border border-primary rounded-3 p-3"
           style={{ height: '250px' }}
