@@ -1,16 +1,9 @@
-import asyncio
-import logging
-import os
-from datetime import datetime as dt
 from pathlib import Path
 
-import aiohttp
 import ccxt
 import django
 import environ
-import pandas as pd
-import sqlalchemy as sql
-from ccxt import async_support as async_ccxt, ExchangeError
+from ccxt import async_support as async_ccxt
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
