@@ -9,7 +9,7 @@ load_dotenv(ENV_PATH, verbose=True)
 SECRET_KEY = os.environ["SECRET_KEY"]
 DEBUG = True
 
-ALLOWED_HOSTS = ["frontend", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["frontend", "34.230.57.182", "localhost"]
 
 # Application definition
 

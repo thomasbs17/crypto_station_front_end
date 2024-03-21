@@ -175,7 +175,7 @@ class ExchangeScreener:
         self.scores = self.scores[self.scores["pair"] != pair]
         if pair not in self.data:
             self.data[pair] = dict()
-        if self.data[pair].get("ohlcv") is not None:
+        if self.data[pair].get("ohlcv") is not None and not self.data[pair]["ohlcv"].empty:
             scoring = dict()
             await self.add_technical_indicators(pair)
             levels = FractalCandlestickPattern(self.data[pair]["ohlcv"]).run()

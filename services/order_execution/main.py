@@ -29,7 +29,7 @@ class OnStartChecker:
         self, open_orders_df: pd.DataFrame, db: sql.Engine, verbose: bool = True
     ):
         self.verbose = verbose
-        self.open_orders_df = open_orders_df
+        self.open_orders_df = open_orders_df.head(15)
         self.data = dict()
         self.filled_orders = dict()
         self.db = db

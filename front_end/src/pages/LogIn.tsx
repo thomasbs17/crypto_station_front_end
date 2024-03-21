@@ -25,7 +25,7 @@ export default function SignIn() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const data = new FormData(event.currentTarget)
-    const endpoint = 'http://127.0.0.1:8000/log_in/'
+    const endpoint = 'http://34.230.57.182:8000/log_in/'
     try {
       await axios.post(endpoint, data)
       navigate(`/trading?exchange=coinbase&pair=BTC/USD`)

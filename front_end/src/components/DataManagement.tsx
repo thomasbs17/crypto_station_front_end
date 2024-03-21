@@ -1,7 +1,7 @@
+import axios from 'axios'
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { filterSlice, type FilterState } from './StateManagement'
-import axios from 'axios'
 
 axios.defaults.withCredentials = true
 
@@ -126,7 +126,7 @@ function LoadStaticData(endpoint: string) {
   useEffect(() => {
     async function getData() {
       try {
-        const url = `http://127.0.0.1:8000/${endpoint}/`
+        const url = `http://34.230.57.182:8000/${endpoint}/`
         const response = await fetch(url)
         const responseData = await response.json()
         setData(responseData)
@@ -151,7 +151,7 @@ function LoadCryptoMetaData(coinMarketCapMapping: any) {
   useEffect(() => {
     async function getData() {
       try {
-        const url = `http://127.0.0.1:8000/coinmarketcap_crypto_meta/?crypto_coinmarketcap_id=${coinMarketCapInfo.id}`
+        const url = `http://34.230.57.182:8000/coinmarketcap_crypto_meta/?crypto_coinmarketcap_id=${coinMarketCapInfo.id}`
         const response = await fetch(url)
         const responseData = await response.json()
         setMetaData(responseData)
@@ -173,7 +173,7 @@ function LoadMarkets() {
     async function getMarkets() {
       try {
         setData([])
-        const url = `http://127.0.0.1:8000/markets/?exchange=${exchange}`
+        const url = `http://34.230.57.182:8000/markets/?exchange=${exchange}`
         const response = await fetch(url)
         const responseData = await response.json()
         setData(responseData)
@@ -199,7 +199,7 @@ function LoadOrders() {
   )
   useEffect(() => {
     async function fetchOrders() {
-      const ordersEndPoint = 'http://127.0.0.1:8000/orders/?format=json'
+      const ordersEndPoint = 'http://34.230.57.182:8000/orders/?format=json'
       try {
         const response = await fetch(ordersEndPoint)
         setOrders(await response.json())
@@ -218,7 +218,7 @@ function LoadTrades() {
 
   useEffect(() => {
     async function fetchTrades() {
-      const ordersEndPoint = 'http://127.0.0.1:8000/trades/?format=json'
+      const ordersEndPoint = 'http://34.230.57.182:8000/trades/?format=json'
       try {
         const response = await fetch(ordersEndPoint)
         setTrades(await response.json())
@@ -247,7 +247,7 @@ function LoadNews(coinMarketCapMapping: any) {
         if (cryptoInfo !== undefined) {
           const searchTerm = `${cryptoInfo.name} crypto`
           const response = await fetch(
-            `http://127.0.0.1:8000/news/?search_term=${searchTerm}`,
+            `http://34.230.57.182:8000/news/?search_term=${searchTerm}`,
           )
           const data = await response.json()
           setNewsData(data)
@@ -270,7 +270,7 @@ function LoadScreeningData() {
   )
   const [screeningData, setScreeningData] = useState<any>([])
   useEffect(() => {
-    const wsUrl = 'ws://localhost:8795'
+    const wsUrl = 'ws://34.230.57.182:8000'
     const socket = new WebSocket(wsUrl)
     socket.onerror = () => {
       console.error('Error with screening service')
@@ -343,7 +343,7 @@ function LoadOhlcvData() {
       }
       try {
         const ohlc_response = await fetch(
-          `http://127.0.0.1:8000/ohlc/?exchange=${exchange}&pair=${pair}&timeframe=${ohlcPeriod}`,
+          `http://34.230.57.182:8000/ohlc/?exchange=${exchange}&pair=${pair}&timeframe=${ohlcPeriod}`,
         )
         const newOhlcData = await ohlc_response.json()
         ohlcData[pair] = newOhlcData
@@ -382,14 +382,14 @@ function LoadLatestPrices(trades: Trade[]) {
     if (pair !== undefined) {
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/public_trades/?exchange=coinbase&pair=${pair}`,
+          `http://34.230.57.182:8000/public_trades/?exchange=coinbase&pair=${pair}`,
         )
         const latestPublicTrades = await response.json()
         const latestPrice =
           latestPublicTrades[latestPublicTrades.length - 1]['price'] || 0
         latestPrices[pair] = latestPrice
         setLatestPrices(latestPrices)
-      } catch (error) {}
+      } catch (error) { }
     }
   }
 
@@ -429,30 +429,30 @@ function LoadLatestPrices(trades: Trade[]) {
 
 function formatOrderBook(rawOrderBook: any, isWebSocketFeed: boolean) {
   const formattedBook: OrderBookData = { bid: [], ask: [] }
-  ;['bid', 'ask'].forEach((side: string) => {
-    let cumulativeVolume = 0
-    if (isWebSocketFeed) {
-      const sortedPrices =
-        side === 'bid'
-          ? Object.keys(rawOrderBook[side]).sort(
+    ;['bid', 'ask'].forEach((side: string) => {
+      let cumulativeVolume = 0
+      if (isWebSocketFeed) {
+        const sortedPrices =
+          side === 'bid'
+            ? Object.keys(rawOrderBook[side]).sort(
               (a, b) => parseFloat(b) - parseFloat(a),
             )
-          : Object.keys(rawOrderBook[side]).sort(
+            : Object.keys(rawOrderBook[side]).sort(
               (a, b) => parseFloat(a) - parseFloat(b),
             )
-      formattedBook[side].push([0, parseFloat(sortedPrices[0])])
-      sortedPrices.forEach((price: string) => {
-        cumulativeVolume += rawOrderBook[side][price]
-        formattedBook[side].push([cumulativeVolume, parseFloat(price)])
-      })
-    } else {
-      formattedBook[side].push([0, rawOrderBook[side + 's'][0][0]])
-      rawOrderBook[side + 's'].forEach((level: [number, number, number]) => {
-        cumulativeVolume += level[1]
-        formattedBook[side].push([cumulativeVolume, level[0]])
-      })
-    }
-  })
+        formattedBook[side].push([0, parseFloat(sortedPrices[0])])
+        sortedPrices.forEach((price: string) => {
+          cumulativeVolume += rawOrderBook[side][price]
+          formattedBook[side].push([cumulativeVolume, parseFloat(price)])
+        })
+      } else {
+        formattedBook[side].push([0, rawOrderBook[side + 's'][0][0]])
+        rawOrderBook[side + 's'].forEach((level: [number, number, number]) => {
+          cumulativeVolume += level[1]
+          formattedBook[side].push([cumulativeVolume, level[0]])
+        })
+      }
+    })
   return formattedBook
 }
 
@@ -471,7 +471,7 @@ function LoadOrderBook(throtle: number = 500) {
   async function fetchOrderBookData() {
     try {
       const orderBookResponse = await axios.get(
-        `http://127.0.0.1:8000/order_book/?exchange=${exchange}&pair=${pair}`,
+        `http://34.230.57.182:8000/order_book/?exchange=${exchange}&pair=${pair}`,
       )
       setOrderBookData(formatOrderBook(orderBookResponse.data, false))
     } catch (error) {
@@ -480,39 +480,56 @@ function LoadOrderBook(throtle: number = 500) {
     }
   }
 
-  useEffect(() => {
-    const wsUrl = `ws://localhost:8768?exchange=${exchange}?book=${pair.replace('/', '-')}`
-    const socket = new WebSocket(wsUrl)
+  function formatLiveBookFeed(rawLiveData: string) {
+    if (rawLiveData) {
+      let prevBook = orderBookData
+      const data = JSON.parse(rawLiveData);
+      ['bid', 'ask'].forEach((side: string) => {
+        data[side].forEach((newRecord: [number, number]) => {
+          if (newRecord[1] === 0) {
+            prevBook[side] = prevBook[side].filter(subArray => subArray[0] !== newRecord[0])
+          } else {
+            prevBook[side].forEach((prevRecord: [number, number], prevIndex: number) => {
+              let minComparison = prevIndex === 0 ? 0 : prevBook[side][prevIndex - 1][1]
+              if (prevRecord[1] === newRecord[0]) {
+                prevBook[side][prevIndex] = newRecord
+              }
+              else if (minComparison < newRecord[0] && newRecord[0] < prevRecord[1]) {
+                prevBook[side].splice(prevIndex + 1, 0, newRecord);
+              }
+            });
+          }
+        })
+      })
+      setOrderBookData(prevBook)
+    }
+  }
 
+  useEffect(() => {
+    const fomattedPair = pair.replace('/', '-').toUpperCase()
+    const wsUrl = `ws://34.230.57.182:8000/ws/live_data/?pairs=${exchange.toUpperCase()}-${fomattedPair}`
+    const socket = new WebSocket(wsUrl)
+    fetchOrderBookData()
     socket.onerror = () => {
       console.warn(
         `Could not implement websocket connection for ${pair} on ${exchange}. Will default back to periodic API refresh.`,
       )
-      fetchOrderBookData()
     }
     socket.onopen = () => {
-      clearInterval(orderBookInterval)
     }
     socket.onmessage = (event) => {
-      if (event.data != 'heartbeat') {
-        if (Date.now() - lastRefreshTmtstmp > throtle) {
-          lastRefreshTmtstmp = Date.now()
+      if (Date.now() - lastRefreshTmtstmp > throtle) {
+        lastRefreshTmtstmp = Date.now()
+        if (orderBookData && event.data) {
           const newData = JSON.parse(event.data)
-          if (Object.keys(newData).includes('book')) {
-            setOrderBookData(formatOrderBook(newData.book.book, true))
-          }
+          formatLiveBookFeed(newData['delta'])
         }
       }
     }
-    const orderBookInterval = setInterval(() => {
-      fetchOrderBookData()
-    }, 5000)
-    fetchOrderBookData()
     return () => {
       if (socket.readyState === 1) {
         socket.close()
       }
-      clearInterval(orderBookInterval)
     }
   }, [exchange, pair])
 

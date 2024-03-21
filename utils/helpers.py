@@ -21,7 +21,7 @@ env = environ.Env()
 environ.Env.read_env()
 HOST = "localhost"
 BASE_WS = f"ws://{HOST}:"
-BASE_API = "http://127.0.0.1:8000"
+BASE_API = "http://34.230.57.182:8000"
 
 
 def get_api_keys(exchange: str, websocket: bool = False) -> dict:

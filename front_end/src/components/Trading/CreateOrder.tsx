@@ -95,7 +95,7 @@ function OrderDetails() {
 
   function SubmitOrder() {
     seIsLoading(true)
-    const endpoint = 'http://127.0.0.1:8000/new_order/'
+    const endpoint = 'http://34.230.57.182:8000/new_order/'
 
     const orderData = {
       user_id: 'thomasbouamoud',
